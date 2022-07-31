@@ -4,12 +4,19 @@ const asyncHandler = require('express-async-handler')
 // @route     POST /api/feedback
 // @access    Public ✔️
 const feedback = asyncHandler(async (req, res) => {
-  const message = req.body.message || 'You didn\'t send a message 😒'
+  const { username, email, phone, birthday, message } = req.body
+  if (!username || !email || !phone || !birthday || !message) {
+    res.status(400)
+    throw new Error('There is no necessary data to continue.')
+  }
 
-  res.status(201).json({
-    status: 'success',
-    message
-  })
+  // ? SET DELAY
+  setTimeout(() => {
+    res.status(201).json({
+      status: 'success',
+      message,
+    })
+  }, 1000)
 })
 
 module.exports = {

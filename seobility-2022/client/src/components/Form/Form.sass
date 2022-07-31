@@ -1,0 +1,95 @@
+$error-color: #ff6969
+$status-color: #797979
+
+.form
+  align-items: center
+  width: 400px
+  border-radius: 30px
+
+  h2
+    text-align: center
+    font-weight: 600
+    color: grey
+
+  p.error
+    font-size: 12px
+    margin: 0
+    color: $error-color
+
+  .form-field
+    position: relative
+    display: flex
+    flex-direction: column
+    justify-content: center
+    align-content: center
+    padding: 15px 0
+
+    label
+      position: absolute
+      font-size: 14px
+      top: 5px
+      left: 20px
+      background-color: white
+      padding: 0 10px
+
+    input,
+    textarea
+      padding: 15px 30px
+      border: 1px solid grey
+      border-radius: 6px
+      font-size: 14px
+
+    input:valid label,
+    textarea:valid label
+      top: 200px
+
+    input:focus,
+    textarea:focus
+      outline: none
+
+    input.error
+      border-color: $error-color
+
+    textarea
+      max-width: 100%
+      min-width: 100%
+      min-height: 100px
+      max-height: 200px
+      height: 200px
+
+  .btn
+    cursor: pointer
+    text-transform: uppercase
+    width: 100%
+    padding: 20px
+    border: none
+    border-radius: 6px
+    color: white
+    background-color: gray
+  .btn:active
+    transform: scale(0.98)
+  .btn[disabled]
+    opacity: 0.4
+    cursor: not-allowed
+    transform: none
+
+  .form-field.error
+    input
+      border-color: $error-color
+    label
+      color: $error-color
+    textarea
+      border-color: $error-color
+    
+  .status
+    position: fixed
+    top: 20px
+    right: 20px
+
+    p
+      text-align: center
+      padding: 20px
+      border-radius: 6px
+      opacity: 0.6
+      color: white
+      background-color: $status-color

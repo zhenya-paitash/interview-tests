@@ -1,9 +1,9 @@
-import './App.css'
+import Form from './components/Form/Form'
 
 const App = () => {
   return (
     <div className="App">
-      <h1>There will be a form</h1>
+      <Form />
     </div>
   )
 }

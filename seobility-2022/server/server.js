@@ -13,6 +13,7 @@ app.use(
   })
 )
 app.use(express.json())
+app.use(express.urlencoded({ extended: false }))
 
 // ROUTES
 app.use('/api/feedback', require('./routes/feedbackRoute'))

@@ -55,39 +55,8 @@ class SimpleObject {
   }
 
   dynamicMoveTo(x2, y2, duration = 1_000) {
-    // const sX = (x2 - this.x) / (duration / 1_000)
-    // const sY = (y2 - this.y) / (duration / 1_000)
-    // console.log(sX, sY)
-
-    const frameTime = 1000 / MAX_FRAMERATE
-    const frames = (duration / 1_000) * MAX_FRAMERATE
-
-    const res = Array.from({ length: frames + 1 }, (_, idx) => {
-      const time = frameTime * idx
-      const coef = time / duration
-      console.log(coef)
-
-      let x = ((x2 - this.x) / duration) * frameTime * idx
-      let y = ((y2 - this.y) / duration) * frameTime * idx
-
-      if (time > duration / 2) {
-        // торможение
-        x += (x2 - x) * coef
-        y += (y2 - y) * coef
-      } else {
-        // ускорение
-        x += (x2 - x) * 0.5
-        y += (y2 - y) * 0.5
-      }
-
-      return {
-        x: +(this.x + x).toFixed(2),
-        y: +(this.y + y).toFixed(2),
-        time: +(frameTime * idx).toFixed(2),
-      }
-    })
-
-    return res
+    // TODO реализовать перемещение с ускорением и торможением
+    return null
   }
 }
 

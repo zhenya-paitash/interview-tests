@@ -81,23 +81,23 @@ class IndexedMap {
   }
 }
 
-const [keyObj, valueObj] = [{ title: 'Object' }, { desc: 'Simple' }]
-const arr = new IndexedMap([
-  [5, 'Five'],
-  [true, 1],
-  [keyObj, valueObj],
-  ['main', [1, 2, 3]],
-])
+// const [keyObj, valueObj] = [{ title: 'Object' }, { desc: 'Simple' }]
+// const arr = new IndexedMap([
+//   [5, 'Five'],
+//   [true, 1],
+//   [keyObj, valueObj],
+//   ['main', [1, 2, 3]],
+// ])
 
-const data10 = new IndexedMap(
-  Array.from({ length: 10 }, (_, idx) => [idx, `value-${idx}`])
-)
-arr.union(
-  data10,
-  new IndexedMap([
-    ['hi', 'hello'],
-    ['bye', 'goodbye'],
-  ])
-)
+// const data10 = new IndexedMap(
+//   Array.from({ length: 10 }, (_, idx) => [idx, `value-${idx}`])
+// )
+// arr.union(
+//   data10,
+//   new IndexedMap([
+//     ['hi', 'hello'],
+//     ['bye', 'goodbye'],
+//   ])
+// )
 
-console.log(arr)
+// console.log(arr)

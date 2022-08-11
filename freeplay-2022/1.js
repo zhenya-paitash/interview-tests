@@ -35,9 +35,9 @@ class SimpleObject {
     // rotation
     this.rotate(x2, y2)
 
-    // координаты середины пути
-    const xavg = (x2 - this.x) / 2
-    const yavg = (y2 - this.y) / 2
+    // координаты середины
+    const xavg = (x2 + this.x) / 2
+    const yavg = (y2 + this.y) / 2
 
     // get coordinates
     const acceleration = this.#getAccelerationMotion(

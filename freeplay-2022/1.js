@@ -1,4 +1,4 @@
-const MAX_FRAMERATE = 6
+const MAX_FRAMERATE = 10
 
 class SimpleObject {
   constructor(x, y) {
@@ -11,19 +11,8 @@ class SimpleObject {
     // rotation
     this.rotate(x2, y2)
 
-    const frameTime = 1000 / MAX_FRAMERATE
-    const frames = (duration / 1_000) * MAX_FRAMERATE
-
-    const res = Array.from({ length: frames + 1 }, (_, idx) => {
-      const x = ((x2 - this.x) / duration) * frameTime * idx
-      const y = ((y2 - this.y) / duration) * frameTime * idx
-
-      return {
-        x: +(this.x + x).toFixed(2),
-        y: +(this.y + y).toFixed(2),
-        time: +(frameTime * idx).toFixed(2),
-      }
-    })
+    // получаем массив координат
+    const res = this.#getLinearMotion(x2, y2, duration)
 
     // move
     this.x = x2
@@ -33,20 +22,7 @@ class SimpleObject {
   }
 
   rotate(x2, y2) {
-    // Найдем вектор по координатам точек
-    const [ABx, ABy] = [0, this.y + 100_000]
-    const [CDx, CDy] = [x2 - this.x, y2 - this.y]
-
-    // Найдем скалярное произведение векторов
-    const scalar = ABx * CDx + ABy * CDy
-
-    // Найдем длину (модуль) вектора
-    const AB = Math.sqrt(Math.pow(ABx, 2) + Math.pow(ABy, 2))
-    const CD = Math.sqrt(CDx ** 2 + CDy ** 2)
-
-    // Найдем угол между векторами
-    const angle = scalar / (AB * CD)
-    const deg = +((Math.acos(angle) * 180) / Math.PI).toFixed(2)
+    const deg = this.#getDegree(x2, y2)
 
     // Изменяем положение камеры объекта, если все расчеты верны
     if (!Number.isNaN(deg)) this.rotation = x2 >= this.x ? deg : -deg
@@ -60,13 +36,14 @@ class SimpleObject {
 
     // ? допуская что 1ую половину пути он ускоряется, а 2ую тормозит
     const frameTime = 1000 / MAX_FRAMERATE
-    const frames = (duration / 1000) * MAX_FRAMERATE
+    const frames = Math.ceil((duration / 1000) * MAX_FRAMERATE)
 
     // координаты середины пути
     const xavg = (x2 - this.x) / 2
     const yavg = (y2 - this.y) / 2
 
-    const res = Array.from({ length: frames / 2 }, (_, idx) => {
+    // Координаты при ускорении
+    const acceleration = Array.from({ length: frames / 2 + 1 }, (_, idx) => {
       const time = frameTime * idx
       const [x, y] = this.#getUniformAcceleration(
         [this.x, this.y],
@@ -74,14 +51,11 @@ class SimpleObject {
         duration / 1000 / 2,
         time / 1000
       )
-
       return { x, y, time: +time.toFixed(2) }
     })
 
-    // В случае отсутствия координат последнего кадра
-    // if (res.at(-1).time !== duration) res.push({ x: x2, y: y2, time: duration })
-
-    const reverseArr = Array.from({ length: frames / 2 }, (_, idx) => {
+    // Координаты при торможении
+    let braking = Array.from({ length: frames / 2 + 1 }, (_, idx) => {
       const time = frameTime * idx
       const [x, y] = this.#getUniformAcceleration(
         [x2, y2],
@@ -89,18 +63,50 @@ class SimpleObject {
         duration / 1000 / 2,
         time / 1000
       )
-
       return { x, y, time: +(duration - time).toFixed(2) }
-    })
+    }).reverse()
 
-    // push 0
-    // if (reverseArr.at(-1).time !== duration) reverseArr.push({ x: this.x, y: this.y, time: 0 })
+    // TODO remove лишний кадр
+    if (braking[0].time - acceleration.at(-1).time < frameTime / 2)
+      braking = braking.slice(1)
 
     // move
     this.x = x2
     this.y = y2
 
-    return [...res, ...reverseArr.reverse()]
+    return [...acceleration, ...braking]
+  }
+
+  #getDegree(x2, y2) {
+    // Найдем вектор по координатам точек
+    const [ABx, ABy] = [0, this.y + 100_000]
+    const [CDx, CDy] = [x2 - this.x, y2 - this.y]
+    // Найдем скалярное произведение векторов
+    const scalar = ABx * CDx + ABy * CDy
+    // Найдем длину (модуль) вектора
+    const AB = Math.sqrt(Math.pow(ABx, 2) + Math.pow(ABy, 2))
+    const CD = Math.sqrt(CDx ** 2 + CDy ** 2)
+    // Найдем угол между векторами
+    const angle = scalar / (AB * CD)
+    const deg = +((Math.acos(angle) * 180) / Math.PI).toFixed(2)
+
+    return deg
+  }
+
+  #getLinearMotion(x2, y2, duration) {
+    const frameTime = 1000 / MAX_FRAMERATE
+    const frames = (duration / 1_000) * MAX_FRAMERATE
+
+    return Array.from({ length: frames + 1 }, (_, idx) => {
+      const x = ((x2 - this.x) / duration) * frameTime * idx
+      const y = ((y2 - this.y) / duration) * frameTime * idx
+
+      return {
+        x: +(this.x + x).toFixed(2),
+        y: +(this.y + y).toFixed(2),
+        time: +(frameTime * idx).toFixed(2),
+      }
+    })
   }
 
   #getUniformAcceleration([x1, y1], [x2, y2], t, tnow) {
@@ -118,8 +124,8 @@ class SimpleObject {
   }
 }
 
-const obj = new SimpleObject(12, 18)
+const obj = new SimpleObject(0, 0)
 
-// console.log(obj.moveTo(10, 10, 1_000))
+// console.log(obj.moveTo(10, 18, 1_000))
 // console.log(obj.rotate(0, -90))
-console.log(obj.dynamicMoveTo(500, 250, 4_000))
+console.log(obj.dynamicMoveTo(500, 250, 932))

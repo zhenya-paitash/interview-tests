@@ -7,6 +7,15 @@ class SimpleObject {
     this.rotation = 0
   }
 
+  rotate(x2, y2) {
+    const deg = this.#getDegree(x2, y2)
+
+    // Изменяем положение камеры объекта, если все расчеты верны
+    if (!Number.isNaN(deg)) this.rotation = x2 >= this.x ? deg : -deg
+
+    return this
+  }
+
   moveTo(x2, y2, duration) {
     // rotation
     this.rotate(x2, y2)
@@ -21,53 +30,34 @@ class SimpleObject {
     return res
   }
 
-  rotate(x2, y2) {
-    const deg = this.#getDegree(x2, y2)
-
-    // Изменяем положение камеры объекта, если все расчеты верны
-    if (!Number.isNaN(deg)) this.rotation = x2 >= this.x ? deg : -deg
-
-    return this
-  }
-
   // ? ДОПУСКАЮ, что 50% пути объект ускоряется, затем 50% замедляется
   dynamicMoveTo(x2, y2, duration = 1_000) {
     // rotation
     this.rotate(x2, y2)
 
-    const frameTime = 1000 / MAX_FRAMERATE
-    const frames = Math.ceil((duration / 1000) * MAX_FRAMERATE)
-
     // координаты середины пути
     const xavg = (x2 - this.x) / 2
     const yavg = (y2 - this.y) / 2
 
-    // Координаты при ускорении
-    const acceleration = Array.from({ length: frames / 2 + 1 }, (_, idx) => {
-      const time = frameTime * idx
-      const [x, y] = this.#getUniformAcceleration(
-        [this.x, this.y],
-        [xavg, yavg],
-        duration / 1000 / 2,
-        time / 1000
-      )
-      return { x, y, time: +time.toFixed(2) }
-    })
-
-    // Координаты при торможении
-    let braking = Array.from({ length: frames / 2 + 1 }, (_, idx) => {
-      const time = frameTime * idx
-      const [x, y] = this.#getUniformAcceleration(
-        [x2, y2],
-        [xavg, yavg],
-        duration / 1000 / 2,
-        time / 1000
-      )
-      return { x, y, time: +(duration - time).toFixed(2) }
-    }).reverse()
-
-    if (braking[0].time - acceleration.at(-1).time < frameTime / 2)
-      braking = braking.slice(1)
+    // get coordinates
+    const acceleration = this.#getAccelerationMotion(
+      [this.x, this.y],
+      [xavg, yavg],
+      duration / 2 / 1000
+    )
+    const braking = this.#getAccelerationMotion(
+      [x2, y2],
+      [xavg, yavg],
+      duration / 2 / 1000
+    )
+      .reverse()
+      .slice(1)
+      .map(i => {
+        return {
+          ...i,
+          time: +(duration - i.time).toFixed(2),
+        }
+      })
 
     // move
     this.x = x2
@@ -108,6 +98,18 @@ class SimpleObject {
     })
   }
 
+  #getAccelerationMotion(from, to, duration) {
+    const frameTime = 1 / MAX_FRAMERATE
+    const frames = Math.round(duration * MAX_FRAMERATE)
+
+    return Array.from({ length: frames + 1 }, (_, idx) => {
+      const t = frameTime * idx
+      const { x, y, time } = this.#getUniformAcceleration(from, to, duration, t)
+
+      return { x, y, time }
+    })
+  }
+
   #getUniformAcceleration([x1, y1], [x2, y2], t, tnow) {
     // Скорость V = s/t  px/sec
     const vx = (x2 - x1) / t
@@ -119,7 +121,11 @@ class SimpleObject {
     const x = x1 + 0 * tnow + (ax * Math.pow(tnow, 2)) / 2
     const y = y1 + 0 * tnow + (ay * Math.pow(tnow, 2)) / 2
 
-    return [+x.toFixed(2), Number(y.toFixed(2))]
+    return {
+      x: +x.toFixed(2),
+      y: +y.toFixed(2),
+      time: +(tnow * 1000).toFixed(2),
+    }
   }
 }
 
@@ -127,4 +133,4 @@ const obj = new SimpleObject(0, 0)
 
 // console.log(obj.moveTo(10, 18, 1_000))
 // console.log(obj.rotate(0, -90))
-// console.log(obj.dynamicMoveTo(-500, 1000, 1_000))
+// console.log(obj.dynamicMoveTo(500, -700, 2000))

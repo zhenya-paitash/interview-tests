@@ -1,4 +1,4 @@
-const MAX_FRAMERATE = 10
+const MAX_FRAMERATE = 30
 
 class SimpleObject {
   constructor(x, y) {
@@ -30,11 +30,11 @@ class SimpleObject {
     return this
   }
 
+  // ? ДОПУСКАЮ, что 50% пути объект ускоряется, затем 50% замедляется
   dynamicMoveTo(x2, y2, duration = 1_000) {
     // rotation
     this.rotate(x2, y2)
 
-    // ? допуская что 1ую половину пути он ускоряется, а 2ую тормозит
     const frameTime = 1000 / MAX_FRAMERATE
     const frames = Math.ceil((duration / 1000) * MAX_FRAMERATE)
 
@@ -66,7 +66,6 @@ class SimpleObject {
       return { x, y, time: +(duration - time).toFixed(2) }
     }).reverse()
 
-    // TODO remove лишний кадр
     if (braking[0].time - acceleration.at(-1).time < frameTime / 2)
       braking = braking.slice(1)
 
@@ -128,4 +127,4 @@ const obj = new SimpleObject(0, 0)
 
 // console.log(obj.moveTo(10, 18, 1_000))
 // console.log(obj.rotate(0, -90))
-console.log(obj.dynamicMoveTo(500, 250, 932))
+// console.log(obj.dynamicMoveTo(-500, 1000, 1_000))

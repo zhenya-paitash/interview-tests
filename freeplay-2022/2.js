@@ -43,7 +43,6 @@ class IndexedMap {
     return this
   }
 
-  // TODO проверить maps или [maps]
   union(...maps) {
     maps.forEach(map => {
       map.forEach(({ key, value }, idx) => this.set(key, value))
@@ -66,9 +65,9 @@ class IndexedMap {
   }
 
   // ? моя реализация без хэш-таблиц и индексов
-  // sortIndexes(cb) {
-  //   return this
-  // }
+  sortIndexes(cb) {
+    return this
+  }
 
   setTo(index, [key, value]) {
     this.data.splice(index, 0, { key, value })
@@ -88,16 +87,4 @@ class IndexedMap {
 //   [keyObj, valueObj],
 //   ['main', [1, 2, 3]],
 // ])
-
-// const data10 = new IndexedMap(
-//   Array.from({ length: 10 }, (_, idx) => [idx, `value-${idx}`])
-// )
-// arr.union(
-//   data10,
-//   new IndexedMap([
-//     ['hi', 'hello'],
-//     ['bye', 'goodbye'],
-//   ])
-// )
-
 // console.log(arr)

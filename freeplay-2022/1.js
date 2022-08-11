@@ -62,12 +62,16 @@ class SimpleObject {
     const frameTime = 1000 / MAX_FRAMERATE
     const frames = (duration / 1000) * MAX_FRAMERATE
 
-    const res = Array.from({ length: frames + 1 }, (_, idx) => {
+    // координаты середины пути
+    const xavg = (x2 - this.x) / 2
+    const yavg = (y2 - this.y) / 2
+
+    const res = Array.from({ length: frames / 2 }, (_, idx) => {
       const time = frameTime * idx
-      const [x, y] = this.#getAccelerationCoordinates(
+      const [x, y] = this.#getUniformAcceleration(
         [this.x, this.y],
-        [x2, y2],
-        duration / 1000,
+        [xavg, yavg],
+        duration / 1000 / 2,
         time / 1000
       )
 
@@ -75,16 +79,31 @@ class SimpleObject {
     })
 
     // В случае отсутствия координат последнего кадра
-    if (res.at(-1).time !== duration) res.push({ x: x2, y: y2, time: duration })
+    // if (res.at(-1).time !== duration) res.push({ x: x2, y: y2, time: duration })
+
+    const reverseArr = Array.from({ length: frames / 2 }, (_, idx) => {
+      const time = frameTime * idx
+      const [x, y] = this.#getUniformAcceleration(
+        [x2, y2],
+        [xavg, yavg],
+        duration / 1000 / 2,
+        time / 1000
+      )
+
+      return { x, y, time: +(duration - time).toFixed(2) }
+    })
+
+    // push 0
+    // if (reverseArr.at(-1).time !== duration) reverseArr.push({ x: this.x, y: this.y, time: 0 })
 
     // move
     this.x = x2
     this.y = y2
 
-    return res
+    return [...res, ...reverseArr.reverse()]
   }
 
-  #getAccelerationCoordinates([x1, y1], [x2, y2], t, tnow) {
+  #getUniformAcceleration([x1, y1], [x2, y2], t, tnow) {
     // Скорость V = s/t  px/sec
     const vx = (x2 - x1) / t
     const vy = (y2 - y1) / t
@@ -103,4 +122,4 @@ const obj = new SimpleObject(12, 18)
 
 // console.log(obj.moveTo(10, 10, 1_000))
 // console.log(obj.rotate(0, -90))
-console.log(obj.dynamicMoveTo(500, 250, 4_400))
+console.log(obj.dynamicMoveTo(500, 250, 4_000))
